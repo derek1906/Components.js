@@ -1,5 +1,88 @@
 # Components.js
-Simple dependency injection system - A light weight solution for handling multiple modules that depend on other modules.
+Simple dependency injection system - A light weight solution for handling components that depend on other components.
+
+## Usage
+This system requires components to be registered before using.
+
+To register a component:
+
+    Components.register("Phonebook", function(){
+        var storage = {};
+
+        // outward-facing interface
+        return {
+	        createEntry: function(name, phone_number){
+				storage[name] = phone_number;
+	        },
+	        retrieveEntry: function(name){
+				return storage[name];
+	        }
+        };
+	});
+
+	Components.register("Phone", function(Phonebook){
+
+        // outward-facing interface
+		return {
+			call: function(name){
+				var number = Phonebook.retrieveEntry(name);
+
+				if(number){
+					doCall(number);
+				}else{
+					showError();
+				}
+			}
+		}
+	});
+
+Or all at once:
+
+    Components.registerAll(
+		"Phonebook", function(){
+	        var storage = {};
+
+	        // outward-facing interface
+	        return {
+		        createEntry: function(name, phone_number){
+					storage[name] = phone_number;
+		        },
+		        retrieveEntry: function(name){
+					return storage[name];
+		        }
+	        };
+		},
+
+		"Phone", function(Phonebook){
+
+	        // outward-facing interface
+			return {
+				call: function(name){
+					var number = Phonebook.retrieveEntry(name);
+
+					if(number){
+						doCall(number);
+					}else{
+						showError();
+					}
+				}
+			}
+		}
+	);
+
+These components can then be used as:
+
+    Components.depends(function(Phone){
+		document.getElementById("call-button").addEventListener(function(){
+			Phone.call(person);
+		});
+	});
+
+Components can also be requested through `Components.getSingleton`:
+
+    Components.getSingleton("Phonebook")
+
+
 
 ## License
 <pre>
